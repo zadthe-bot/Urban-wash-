@@ -1,4 +1,3 @@
-
 name: Build Urban Wash Android APK
 
 on:
@@ -9,21 +8,19 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-android:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
 
-      - name: Install dependencies
+      - name: Install packages
         run: npm install
 
       - name: Build React app
@@ -38,14 +35,11 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Verify Firebase file
+      - name: Check Firebase file
         run: |
-          if [ ! -f "android/app/google-services.json" ]; then
-            echo "google-services.json missing"
-            exit 1
-          fi
+          test -f android/app/google-services.json || exit 1
 
-      - name: Sync Capacitor Android
+      - name: Sync Capacitor
         run: npx cap sync android
 
       - name: Build APK
@@ -57,5 +51,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Urban-Wash-debug-apk
+          name: Urban-Wash-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk

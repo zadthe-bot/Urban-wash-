@@ -44,13 +44,13 @@ jobs:
 
       - name: Create Android Debug Keystore
         run: |
-          mkdir -p ~/.android
+          mkdir -p ~/.config/.android
           keytool -genkeypair \
-            -alias androiddebugkey \
+            -alias AndroidDebugKey \
             -keyalg RSA \
             -keysize 2048 \
             -validity 10000 \
-            -keystore ~/.android/debug.keystore \
+            -keystore ~/.config/.android/debug.keystore \
             -storepass android \
             -keypass android \
             -dname "CN=Android Debug,O=Android,C=US"
@@ -61,7 +61,7 @@ jobs:
           chmod +x gradlew
           ./gradlew signingReport
 
-      - name: Build APK
+      - name: Build Debug APK
         run: |
           cd android
           chmod +x gradlew

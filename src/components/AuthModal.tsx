@@ -57,11 +57,25 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess, onDemoSignIn })
         </div>
 
         {error && (
-          <div className="w-full p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-left flex items-start space-x-2 text-xs text-red-300">
-            <Info className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
-            <div className="space-y-1">
-              <span>{error}</span>
+          <div className="w-full p-3.5 bg-red-500/10 border border-red-500/30 rounded-2xl text-left flex flex-col space-y-2 text-xs text-red-300">
+            <div className="flex items-start space-x-2">
+              <Info className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <span className="font-semibold block text-red-200">Domain Authorization Required</span>
+                <p className="text-[11px] text-red-300/90 leading-relaxed">{error}</p>
+              </div>
             </div>
+
+            {onDemoSignIn && (
+              <button
+                type="button"
+                onClick={onDemoSignIn}
+                className="mt-1 py-2 px-3 bg-red-500/20 hover:bg-red-500/30 text-white font-bold rounded-xl text-xs transition-colors border border-red-500/40 flex items-center justify-center space-x-1.5"
+              >
+                <span>Continue with Instant Customer Demo</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
         )}
 

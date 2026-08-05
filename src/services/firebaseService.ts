@@ -1,9 +1,13 @@
 import {
   signInWithPopup,
+  signInWithCredential,
+  GoogleAuthProvider,
   signOut as firebaseSignOut,
   onAuthStateChanged,
   User as FirebaseUser,
 } from 'firebase/auth';
+import { Capacitor } from '@capacitor/core';
+import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 import {
   doc,
   getDoc,
@@ -26,20 +30,41 @@ const ORDERS_COLLECTION = 'orders';
 const NOTIFICATIONS_COLLECTION = 'notifications';
 
 /**
- * Sign in with Google Auth
+ * Sign in with Google Auth (Supports native Capacitor APK and Web browser)
  */
 export async function signInWithGoogle(): Promise<FirebaseUser | null> {
   try {
-    const result = await signInWithPopup(auth, googleProvider);
-    if (result.user) {
-      await ensureUserProfileExists(result.user);
+    let user: FirebaseUser | null = null;
+
+    if (Capacitor.isNativePlatform()) {
+      // Native Android / iOS APK flow using @capacitor-firebase/authentication
+      const result = await FirebaseAuthentication.signInWithGoogle();
+      const idToken = result.credential?.idToken;
+      if (idToken) {
+        const credential = GoogleAuthProvider.credential(idToken);
+        const userCredential = await signInWithCredential(auth, credential);
+        user = userCredential.user;
+      }
+    } else {
+      // Web browser / Preview iframe flow
+      const result = await signInWithPopup(auth, googleProvider);
+      user = result.user;
     }
-    return result.user;
+
+    if (user) {
+      await ensureUserProfileExists(user);
+    }
+    return user || auth.currentUser;
   } catch (error: any) {
     console.error('Google Sign-In error:', error);
-    // If popup is blocked or closed in iframe, rethrow with friendly message
+    if (error?.code === 'auth/unauthorized-domain' || error?.message?.includes('unauthorized-domain')) {
+      const hostname = typeof window !== 'undefined' ? window.location.hostname : 'this domain';
+      throw new Error(
+        `Firebase Auth Domain Authorization Required: "${hostname}" is not authorized in Firebase Console yet. Please add "${hostname}" in Firebase Console > Authentication > Settings > Authorized domains, or click Instant Demo Access below.`
+      );
+    }
     if (error?.code === 'auth/popup-blocked' || error?.code === 'auth/popup-closed-by-user') {
-      throw new Error('Sign-in popup was closed or blocked by browser. You can use the Demo Account option below to test seamlessly.');
+      throw new Error('Sign-in popup was closed or blocked by browser. You can click Instant Customer Demo Access below to test seamlessly.');
     }
     throw error;
   }
@@ -49,6 +74,13 @@ export async function signInWithGoogle(): Promise<FirebaseUser | null> {
  * Sign out current user
  */
 export async function signOutUser(): Promise<void> {
+  try {
+    if (Capacitor.isNativePlatform()) {
+      await FirebaseAuthentication.signOut();
+    }
+  } catch (e) {
+    console.warn('Native Capacitor signout error:', e);
+  }
   await firebaseSignOut(auth);
 }
 

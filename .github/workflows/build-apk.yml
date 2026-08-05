@@ -2,55 +2,56 @@ name: Build Android APK
 
 on:
   push:
-    branches: [ main, master ]
+    branches:
+      - main
+      - master
   workflow_dispatch:
 
 jobs:
   build-apk:
-    name: Build Android APK
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js Environment
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
-          cache: 'npm'
+          node-version: 20
 
       - name: Install Dependencies
         run: npm install
 
-      - name: Build Web App (Vite)
+      - name: Build Web App
         run: npm run build
 
-      - name: Setup Java JDK 21
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: temurin
           java-version: '21'
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Initialize & Sync Capacitor Android Project
+      - name: Add Android Platform
         run: |
-          npm install @capacitor/core @capacitor/cli @capacitor/android
           if [ ! -d "android" ]; then
             npx cap add android
           fi
-          npx cap sync android
 
-      - name: Build Android Debug APK
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      - name: Build Debug APK
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug --stacktrace
+          ./gradlew assembleDebug
 
-      - name: Upload APK to Github Artifacts
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: UrbanWash-Tanzania-App.apk
+          name: UrbanWash-Tanzania-App
           path: android/app/build/outputs/apk/debug/app-debug.apk

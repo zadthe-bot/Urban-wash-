@@ -1,0 +1,6 @@
+{
+  "name": "Urban Wash",
+  "description": "On-demand mobile laundry pickup & delivery app in Tanzania with generic clothes selection, required wash/iron/perfume services, and local payments in TSh (M-Pesa, Airtel Money, Tigo Pesa, HaloPesa, CRDB, NMB, Stanbic, Cash).",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

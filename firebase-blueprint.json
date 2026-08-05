@@ -1,0 +1,87 @@
+{
+  "entities": {
+    "users": {
+      "title": "User",
+      "description": "Customer profiles for Urban Wash",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "savedAddresses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "label": { "type": "string" },
+              "address": { "type": "string" },
+              "lat": { "type": "number" },
+              "lng": { "type": "number" },
+              "isDefault": { "type": "boolean" }
+            }
+          }
+        },
+        "fcmToken": { "type": "string" }
+      },
+      "required": ["uid", "email"]
+    },
+    "orders": {
+      "title": "Order",
+      "description": "Customer laundry orders",
+      "type": "object",
+      "properties": {
+        "customerId": { "type": "string" },
+        "orderNumber": { "type": "string" },
+        "pickupLocation": { "type": "string" },
+        "latitude": { "type": "number" },
+        "longitude": { "type": "number" },
+        "servicesSelected": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "price": { "type": "number" },
+              "unit": { "type": "string" },
+              "quantity": { "type": "number" }
+            }
+          }
+        },
+        "quantity": { "type": "string" },
+        "instructions": { "type": "string" },
+        "pickupTime": { "type": "string" },
+        "priceEstimate": { "type": "number" },
+        "orderStatus": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "riderInfo": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "phone": { "type": "string" },
+            "vehicle": { "type": "string" },
+            "photo": { "type": "string" }
+          }
+        }
+      },
+      "required": ["customerId", "pickupLocation", "orderStatus"]
+    },
+    "notifications": {
+      "title": "Notification",
+      "description": "Push notification logs for customers",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "body": { "type": "string" },
+        "orderId": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "read": { "type": "boolean" }
+      },
+      "required": ["userId", "title", "body"]
+    }
+  }
+}

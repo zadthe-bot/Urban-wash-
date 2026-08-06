@@ -1,0 +1,74 @@
+name: Build Urban Wash Android APK
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install packages
+        run: npm install
+
+      - name: Build React app
+        run: npm run build
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Check Firebase file
+        run: |
+          test -f android/app/google-services.json || exit 1
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      - name: Create Android Debug Keystore
+        run: |
+          mkdir -p ~/.config/.android
+          keytool -genkeypair \
+            -alias AndroidDebugKey \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -keystore ~/.config/.android/debug.keystore \
+            -storepass android \
+            -keypass android \
+            -dname "CN=Android Debug,O=Android,C=US"
+
+      - name: Generate SHA Fingerprints
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew signingReport
+
+      - name: Build Debug APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Urban-Wash-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk

@@ -23,6 +23,7 @@ import {
   serverTimestamp,
 } from 'firebase/firestore';
 import { auth, googleProvider, db } from '../lib/firebase';
+export { db };
 import { UserProfile, LaundryOrder, AddressLocation, AppNotification, OrderStatus } from '../types';
 
 const USERS_COLLECTION = 'users';

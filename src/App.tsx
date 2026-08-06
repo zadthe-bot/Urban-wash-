@@ -86,20 +86,61 @@ export default function App() {
     return () => unsubNotifs();
   }, [user]);
 
-  // Demo Sign-In Handler for easy iframe preview testing
+  // Demo Sign-In Handler for easy instant preview access
   const handleDemoSignIn = async () => {
     try {
-      // Mock demo user object
       const demoUid = 'demo_user_urbanwash_8821';
       const mockFirebaseUser = {
         uid: demoUid,
-        displayName: 'Demo Urban Customer',
-        email: 'customer@urbanwash.com',
+        displayName: 'Isihaka (Customer)',
+        email: 'isihakakabaju9@gmail.com',
         photoURL: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
       } as FirebaseUser;
 
       setUser(mockFirebaseUser);
-      await ensureUserProfileExists(mockFirebaseUser);
+      const prof = await ensureUserProfileExists(mockFirebaseUser);
+      setUserProfile(prof);
+
+      // Check if user has an existing order in Firestore, otherwise seed an active order for testing
+      const { collection, query, where, getDocs } = await import('firebase/firestore');
+      const { db, createLaundryOrder } = await import('./services/firebaseService');
+      const ordersRef = collection(db, 'orders');
+      const q = query(ordersRef, where('customerId', '==', demoUid));
+      const snap = await getDocs(q);
+
+      if (snap.empty) {
+        await createLaundryOrder({
+          customerId: demoUid,
+          customerName: 'Isihaka (Customer)',
+          customerPhone: '+255 754 123 456',
+          pickupLocation: 'Mikocheni B, Rose Garden Road, Dar es Salaam',
+          latitude: -6.7720,
+          longitude: 39.2280,
+          clothingItems: [
+            { itemId: 'shirts_blouses', name: 'Shirts & Blouses', quantity: 3, unitPriceTSh: 3000 },
+            { itemId: 'trousers_pants', name: 'Trousers & Pants', quantity: 2, unitPriceTSh: 3500 },
+            { itemId: 'suits_jackets', name: 'Suits & Jackets', quantity: 1, unitPriceTSh: 8000 },
+          ],
+          servicesRequired: ['Wash and fold', 'Perfume treatment'],
+          paymentMethod: 'M-Pesa (Vodacom)',
+          paymentPhone: '+255 754 123 456',
+          paymentStatus: 'Paid (Mobile Money)',
+          quantitySummary: '6 clothing items',
+          instructions: 'Perfume Softener | Light Starch on collar',
+          pickupTime: 'Today (2:00 PM - 4:00 PM)',
+          priceEstimateTSh: 27000,
+          subtotalTSh: 24000,
+          deliveryFeeTSh: 3000,
+          orderStatus: 'Pickup Assigned',
+          riderInfo: {
+            name: 'Juma Bakari',
+            phone: '+255 754 882 109',
+            vehicle: 'TVS King Bajaj Express (#DAR-202)',
+            photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
+            rating: 4.9,
+          },
+        });
+      }
     } catch (err) {
       console.error('Demo sign-in error:', err);
     }

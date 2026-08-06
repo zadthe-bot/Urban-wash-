@@ -1,14 +1,9 @@
-import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, Auth } from "firebase/auth";
-import { getFirestore, Firestore } from "firebase/firestore";
-import { getStorage, FirebaseStorage } from "firebase/storage";
-import {
-  getMessaging,
-  isSupported as isMessagingSupported,
-  Messaging,
-} from "firebase/messaging";
-
-import firebaseConfigJson from "../../firebase-applet-config.json";
+import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
+import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+import { getFirestore, Firestore } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
+import { getMessaging, isSupported as isMessagingSupported, Messaging } from 'firebase/messaging';
+import firebaseConfigJson from '../../firebase-applet-config.json';
 
 const firebaseConfig = {
   apiKey: firebaseConfigJson.apiKey,
@@ -19,61 +14,36 @@ const firebaseConfig = {
   appId: firebaseConfigJson.appId,
 };
 
-// Initialize Firebase App
-const app: FirebaseApp =
-  getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+// Initialize App
+const app: FirebaseApp = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
+// Initialize Firestore with custom databaseId if specified
+const dbId = firebaseConfigJson.firestoreDatabaseId;
+export const db: Firestore = dbId && dbId !== '(default)'
+  ? getFirestore(app, dbId)
+  : getFirestore(app);
 
-// Firestore
-const databaseId = firebaseConfigJson.firestoreDatabaseId;
-
-export const db: Firestore =
-  databaseId && databaseId !== "(default)"
-    ? getFirestore(app, databaseId)
-    : getFirestore(app);
-
-
-// Firebase Auth
-// Used after native Capacitor Google login returns a token
-export const auth: Auth = getAuth(app);
-
-
-// Google Provider
-// Used only for web fallback, NOT Android/iOS native login
+// Initialize Auth
+export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({ prompt: 'select_account' });
 
-googleProvider.setCustomParameters({
-  prompt: "select_account",
-});
+// Initialize Storage
+export const storage = getStorage(app);
 
-
-// Storage
-export const storage: FirebaseStorage = getStorage(app);
-
-
-// Firebase Cloud Messaging
+// Messaging (Async safe)
 export let messaging: Messaging | null = null;
 
-isMessagingSupported()
-  .then((supported) => {
-    if (supported) {
+isMessagingSupported().then((supported) => {
+  if (supported) {
+    try {
       messaging = getMessaging(app);
+    } catch (err) {
+      console.warn('FCM not initialized in this environment:', err);
     }
-  })
-  .catch((error) => {
-    console.warn(
-      "Firebase messaging not supported:",
-      error
-    );
-  });
-
-
-// Debug information
-console.log(
-  "Firebase initialized:",
-  firebaseConfig.projectId,
-  firebaseConfig.appId
-);
-
+  }
+}).catch(() => {
+  // Push messaging not supported in environment
+});
 
 export default app;

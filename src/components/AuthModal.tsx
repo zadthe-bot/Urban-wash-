@@ -79,18 +79,33 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess, onDemoSignIn })
           </div>
         )}
 
-        {/* Sign In Buttons */}
+        {/* Sign In & Quick Access Buttons */}
         <div className="w-full space-y-2.5">
+          {/* Quick Enter App - Primary Action */}
+          {onDemoSignIn && (
+            <button
+              type="button"
+              onClick={onDemoSignIn}
+              disabled={loading}
+              className="w-full py-4 px-4 bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:to-blue-500 text-white font-extrabold rounded-2xl text-sm shadow-xl shadow-cyan-500/25 transition-all active:scale-[0.98] flex items-center justify-center space-x-2 border border-cyan-400/30"
+            >
+              <span>Quick Enter App (Instant Customer Access)</span>
+              <ArrowRight className="w-4 h-4 text-cyan-200" />
+            </button>
+          )}
+
+          {/* Native Google Sign-In button for Mobile App APK / Web */}
           <button
+            type="button"
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="w-full py-3.5 px-4 bg-white hover:bg-slate-100 text-slate-900 font-bold rounded-2xl text-sm shadow-lg transition-all active:scale-[0.98] flex items-center justify-center space-x-3 disabled:opacity-50"
+            className="w-full py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-100 font-bold rounded-2xl text-xs transition-all border border-slate-700 flex items-center justify-center space-x-2.5 disabled:opacity-50"
           >
             {loading ? (
-              <Loader2 className="w-5 h-5 animate-spin text-slate-900" />
+              <Loader2 className="w-4 h-4 animate-spin text-cyan-400" />
             ) : (
               <>
-                <svg className="w-5 h-5" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                   <path
                     fill="#4285F4"
                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -108,22 +123,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess, onDemoSignIn })
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
                   />
                 </svg>
-                <span>Sign in with Google</span>
+                <span>Google Auth (Native APK & Web)</span>
               </>
             )}
           </button>
-
-          {/* Quick Demo Sign-In Option */}
-          {onDemoSignIn && (
-            <button
-              onClick={onDemoSignIn}
-              disabled={loading}
-              className="w-full py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-semibold rounded-2xl text-xs transition-colors border border-slate-700 flex items-center justify-center space-x-1.5"
-            >
-              <span>Instant Customer Demo Access</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          )}
         </div>
 
         <div className="flex items-center space-x-1.5 text-[11px] text-slate-400">
